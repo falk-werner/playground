@@ -51,7 +51,6 @@ image_create(
     int height
 )
 {
-    // ToDo: implement me
     struct image * image = malloc(sizeof(struct image));
     image->width = width;
     image->height = height;
