@@ -272,4 +272,5 @@ image_set_pixel(
         target[GREEN_INDEX] = pixel->g;
         target[BLUE_INDEX]  = pixel->b;
         target[ALPHA_INDEX] = pixel->a;
-    }}
+    }
+}
