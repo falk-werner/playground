@@ -1,3 +1,29 @@
+/*
+ * Copyright (c) 2019 Falk Werner
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+//#############################################################################
+// Header
+//#############################################################################
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -11,51 +37,132 @@
 #include <openssl/pem.h>
 #include <openssl/cms.h>
 
+//#############################################################################
+// Type Definitions
+//#############################################################################
+
+/// Commnd, the application can execute.
 enum command
 {
-    SIGN,
-    PRINT_USAGE
+    SIGN,               ///< sign file
+    PRINT_USAGE         ///< print usage and exit
 };
 
+/// Context of the application.
+///
+/// Contains parsed command line arguments.
 struct context
 {
-    char const * filename;
-    char const * key_file;
-    char const * cert_file;
-    enum command command;
+    char const * filename;      ///< name of the file to sign
+    char const * key_file;      ///< name of the private key file (PEM)
+    char const * cert_file;     ///< name of the certificate file used to sign (PEM)
+    enum command command;       ///< command to execute
 };
 
+
+//#############################################################################
+// Local Function Declarations
+//#############################################################################
+
+//-----------------------------------------------------------------------------
+/// Initialized OpenSSL library.
+///
+/// \ņote The application will be terminated, if initialization fails.
+//-----------------------------------------------------------------------------
 static void init_openssl(void);
 
-static void print_openssl_error(char const * message);
+//-----------------------------------------------------------------------------
+/// Prints an OpenSSL error message.
+///
+/// \param message user defined message to specify context of the error
+//-----------------------------------------------------------------------------
+static void print_openssl_error(
+    char const * message);
 
+//-----------------------------------------------------------------------------
+/// Prints the usage of the application.
+//-----------------------------------------------------------------------------
 static void print_usage(void);
 
+//-----------------------------------------------------------------------------
+/// Parses command line arguments.
+///
+/// \param context context of the application; used to store parsed arguemnts
+/// \param argc    count of command line arguments
+/// \param argv    command line arguments
+///
+/// \return EXIT_SUCCESS on success, EXIT_FAILURE otherwise.
+///         Note that context will be also initialized on failure.
+//-----------------------------------------------------------------------------
 static int parse_arguments(
     struct context * context,
     int argc,
     char * argv[]
 );
 
+//-----------------------------------------------------------------------------
+/// Create a signature of a file and prints it to stdout.
+///
+/// \param filname   file to sign
+/// \param key_file  PEM file containing private key
+/// \param cert_file PEM file containing certificate used for signing
+///
+/// \return EXIT_SUCCESS on success, EXIT_FAILURE otherwise 
+//-----------------------------------------------------------------------------
 static int sign(
     char const * filename,
     char const * key_file,
     char const * cert_file);
 
+//-----------------------------------------------------------------------------
+/// Loads a private key from a PEM file.
+///
+/// \param filename name of PEM file containing the private key
+///
+/// \return Private key on success, NULL otherwise.
+//-----------------------------------------------------------------------------
 static EVP_PKEY *
 read_key_from_file(
     char const * filename);
 
+//-----------------------------------------------------------------------------
+/// Loads a X509 certificate from a PEM file.
+///
+/// \param filename name of the PEM file containing the X509 certificate.
+///
+/// \return X509 certificate on success, NULL otherwise.
+//-----------------------------------------------------------------------------
 static X509 *
 read_cert_from_file(
     char const * filename);
 
+//-----------------------------------------------------------------------------
+/// Encodes a block of given data in Base64 format.
+///
+/// \note The result must be freed by user.
+///
+/// \param data  Pointer to data block
+/// \param count Length of data block in bytes.
+///
+/// \return base64 encoded data
+//-----------------------------------------------------------------------------
 static char *
 base64_encode(
     char const * data, 
     size_t count);
 
+//#############################################################################
+// Implementation
+//#############################################################################
 
+//-----------------------------------------------------------------------------
+/// Entry point of the application.
+///
+/// \param argc count of command line arguments
+/// \param argv command line arguments
+///
+/// \return EXIT_SUCCESS on success, EXIT_FAILURE otherwise.
+//-----------------------------------------------------------------------------
 int main(int argc, char * argv[])
 {
     init_openssl();
@@ -78,6 +185,7 @@ int main(int argc, char * argv[])
     return result;
 }
 
+//-----------------------------------------------------------------------------
 static void init_openssl(void)
 {
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
@@ -95,6 +203,7 @@ static void init_openssl(void)
 #endif   
 }
 
+//-----------------------------------------------------------------------------
 static void print_openssl_error(char const * message)
 {
     unsigned long error_code = ERR_get_error();
@@ -106,6 +215,7 @@ static void print_openssl_error(char const * message)
     fprintf(stderr, "error: %s (OpenSSL: %s: %s: %s [0x%08lX])\n", message, lib_name, func_name, reason, error_code);
 }
 
+//-----------------------------------------------------------------------------
 static void print_usage(void)
 {
     printf(
@@ -129,6 +239,7 @@ static void print_usage(void)
     );
 }
 
+//-----------------------------------------------------------------------------
 static int parse_arguments(
     struct context * context,
     int argc,
@@ -209,6 +320,7 @@ static int parse_arguments(
     return result;
 }
 
+//-----------------------------------------------------------------------------
 static int sign(
     char const * filename,
     char const * key_file,
@@ -283,6 +395,7 @@ static int sign(
     return EXIT_FAILURE;
 }
 
+//-----------------------------------------------------------------------------
 static EVP_PKEY *
 read_key_from_file(
     char const * filename)
@@ -304,6 +417,7 @@ read_key_from_file(
     return key;
 }
 
+//-----------------------------------------------------------------------------
 static X509 *
 read_cert_from_file(
     char const * filename)
@@ -325,6 +439,7 @@ read_cert_from_file(
     return cert;
 }
 
+//-----------------------------------------------------------------------------
 static char *
 base64_encode(
     char const * data, 
