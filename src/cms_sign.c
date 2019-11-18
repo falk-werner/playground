@@ -36,6 +36,7 @@
 #include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/cms.h>
+#include <openssl/asn1t.h>
 
 //#############################################################################
 // Type Definitions
@@ -57,6 +58,7 @@ struct context
     char const * key_file;      ///< name of the private key file (PEM)
     char const * cert_file;     ///< name of the certificate file used to sign (PEM)
     enum command command;       ///< command to execute
+    bool is_verbose;            ///< if true, additional output will be printed to stderr
 };
 
 
@@ -112,7 +114,8 @@ static int parse_arguments(
 static int sign(
     char const * filename,
     char const * key_file,
-    char const * cert_file);
+    char const * cert_file,
+    bool is_verbose);
 
 //-----------------------------------------------------------------------------
 /// Loads a private key from a PEM file.
@@ -172,7 +175,7 @@ int main(int argc, char * argv[])
     switch (context.command)
     {
         case SIGN:
-            result = sign(context.filename, context.key_file, context.cert_file);
+            result = sign(context.filename, context.key_file, context.cert_file, context.is_verbose);
             break;
         case PRINT_USAGE:
             print_usage();
@@ -223,12 +226,13 @@ static void print_usage(void)
         "Prints signature of a file using OpenSSL Cryptographic Message Syntax (CMS)\n"
         "\n"
         "Usage:\n"
-        "\tcms_sign -f <infile> -p <private-key.pem> -c <certifate.pem> | -h\n"
+        "\tcms_sign -f <infile> -p <private-key.pem> -c <certifate.pem> [-v] | -h\n"
         "\n"
         "Options:\n"
         "\t-f, --file        - file to sign\n"
         "\t-p, --private-key - private key to sign (format: PEM)\n"
         "\t-c, --certificate - certifiacte to sign (format: PEM)\n"
+        "\t-v, --verbose     - print additional information to stderr\n"
         "\t-h, --help        - print usage\n"
         "\n"
         "OpenSSL: create self-signed certificate and key\n"
@@ -251,6 +255,7 @@ static int parse_arguments(
         {"file", required_argument, NULL, 'f'},
         {"private-key", required_argument, NULL, 'p'},
         {"certificate", required_argument, NULL, 'c'},
+        {"verbose", no_argument, NULL, 'v'},
         {"help", no_argument, NULL, 'h'},
         {NULL, 0, NULL, 0}
     };
@@ -260,12 +265,13 @@ static int parse_arguments(
     context->filename = NULL;
     context->key_file = NULL;
     context->cert_file = NULL;
+    context->is_verbose = false;
 
     bool is_finished = false;
     while (!is_finished)
     {
         int option_index = 0;
-        int const c = getopt_long(argc, argv, "f:p:c:h", options, &option_index);
+        int const c = getopt_long(argc, argv, "f:p:c:vh", options, &option_index);
 
         switch (c)
         {
@@ -280,6 +286,9 @@ static int parse_arguments(
                 break;
             case 'c':
                 context->cert_file = optarg;
+                break;
+            case 'v':
+                context->is_verbose = true;
                 break;
             case 'h':
                 context->command = PRINT_USAGE;
@@ -324,7 +333,8 @@ static int parse_arguments(
 static int sign(
     char const * filename,
     char const * key_file,
-    char const * cert_file)
+    char const * cert_file,
+    bool is_verbose)
 {
     int result = EXIT_SUCCESS;
 
@@ -358,7 +368,7 @@ static int sign(
     CMS_ContentInfo * cms = NULL;
     if (EXIT_SUCCESS == result)
     {
-        cms = CMS_sign(cert, key, NULL, file, CMS_DETACHED | CMS_BINARY);
+        cms = CMS_sign(cert, key, NULL, file, CMS_DETACHED | CMS_NOCERTS | CMS_BINARY);
         if (NULL == cms)
         {
             print_openssl_error("unable to sign file");
@@ -385,6 +395,14 @@ static int sign(
         }
 
         BIO_free_all(signature);
+    }
+
+    if ((EXIT_SUCCESS == result) && (is_verbose))
+    {
+        BIO * out = BIO_new_fd(fileno(stderr), BIO_NOCLOSE);
+        CMS_ContentInfo_print_ctx(out,cms, 0, NULL);
+
+        BIO_free_all(out);
     }
 
     CMS_ContentInfo_free(cms);
