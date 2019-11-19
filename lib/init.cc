@@ -3,6 +3,7 @@
 
 #include <openssl/conf.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 
 namespace openssl
 {
