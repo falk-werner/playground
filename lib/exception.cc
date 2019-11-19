@@ -17,9 +17,9 @@ std::string getOpenSSLError(std::string const & message)
 
     std::stringstream stream;
     stream << "error: " << message
-        << " (OpenSSL: " << lib_name << func_name << ' ' << reason 
+        << " (OpenSSL: " << lib_name << ": " << func_name << ": " << reason 
         << " [0x" << std::setw(8) << std::setfill('0') << std::hex << error_code << "])"
-        << std::endl;
+    ;
 
     return stream.str();
 }
