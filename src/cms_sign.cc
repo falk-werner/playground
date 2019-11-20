@@ -20,17 +20,13 @@
  * SOFTWARE.
  */
 
-//#############################################################################
-// Header
-//#############################################################################
-
 #include <iostream>
 #include <cstdlib>
 
 #include <getopt.h>
 
 #include "openssl++/openssl++.hpp"
-
+#include "cli/cli.hpp"
 
 using openssl::OpenSSL;
 using openssl::PrivateKey;
@@ -38,222 +34,17 @@ using openssl::BasicIO;
 using openssl::Certificate;
 using openssl::CMS;
 
-//#############################################################################
-// Type Definitions
-//#############################################################################
+using cli::App;
+using cli::Argument;
+using cli::Arguments;
 
-/// Commnd, the application can execute.
-enum command
+static int sign(Arguments const & args)
 {
-    SIGN,               ///< sign file
-    PRINT_USAGE         ///< print usage and exit
-};
+    auto const & filename = args.get('f');
+    auto const & key_file = args.get('p');
+    auto const & cert_file = args.get('c');
+    bool is_verbose = args.contains('v');
 
-/// Context of the application.
-///
-/// Contains parsed command line arguments.
-struct context
-{
-    char const * filename;      ///< name of the file to sign
-    char const * key_file;      ///< name of the private key file (PEM)
-    char const * cert_file;     ///< name of the certificate file used to sign (PEM)
-    enum command command;       ///< command to execute
-    bool is_verbose;            ///< if true, additional output will be printed to stderr
-};
-
-
-//#############################################################################
-// Local Function Declarations
-//#############################################################################
-
-//-----------------------------------------------------------------------------
-/// Prints the usage of the application.
-//-----------------------------------------------------------------------------
-static void print_usage(void);
-
-//-----------------------------------------------------------------------------
-/// Parses command line arguments.
-///
-/// \param context context of the application; used to store parsed arguemnts
-/// \param argc    count of command line arguments
-/// \param argv    command line arguments
-///
-/// \return EXIT_SUCCESS on success, EXIT_FAILURE otherwise.
-///         Note that context will be also initialized on failure.
-//-----------------------------------------------------------------------------
-static int parse_arguments(
-    struct context * context,
-    int argc,
-    char * argv[]
-);
-
-//-----------------------------------------------------------------------------
-/// Create a signature of a file and prints it to stdout.
-///
-/// \param filname   file to sign
-/// \param key_file  PEM file containing private key
-/// \param cert_file PEM file containing certificate used for signing
-///
-/// \return EXIT_SUCCESS on success, EXIT_FAILURE otherwise 
-//-----------------------------------------------------------------------------
-static int sign(
-    char const * filename,
-    char const * key_file,
-    char const * cert_file,
-    bool is_verbose);
-
-//#############################################################################
-// Implementation
-//#############################################################################
-
-//-----------------------------------------------------------------------------
-/// Entry point of the application.
-///
-/// \param argc count of command line arguments
-/// \param argv command line arguments
-///
-/// \return EXIT_SUCCESS on success, EXIT_FAILURE otherwise.
-//-----------------------------------------------------------------------------
-int main(int argc, char * argv[])
-{
-    OpenSSL::init();
-
-    struct context context;
-    int result = parse_arguments(&context, argc, argv);
-    switch (context.command)
-    {
-        case SIGN:
-            result = sign(context.filename, context.key_file, context.cert_file, context.is_verbose);
-            break;
-        case PRINT_USAGE:
-            print_usage();
-            break;
-        default:
-            std::cerr <<  "error: invalid command (" << context.command << "d)\n";
-            break;
-    }
-
-    return result;
-}
-
-//-----------------------------------------------------------------------------
-static void print_usage(void)
-{
-    std::cout <<
-        "cms_sign, Copyright (c) 2019 Falk Werner\n"
-        "Prints signature of a file using OpenSSL Cryptographic Message Syntax (CMS)\n"
-        "\n"
-        "Usage:\n"
-        "\tcms_sign -f <infile> -p <private-key.pem> -c <certifate.pem> [-v] | -h\n"
-        "\n"
-        "Options:\n"
-        "\t-f, --file        - file to sign\n"
-        "\t-p, --private-key - private key to sign (format: PEM)\n"
-        "\t-c, --certificate - certifiacte to sign (format: PEM)\n"
-        "\t-v, --verbose     - print additional information to stderr\n"
-        "\t-h, --help        - print usage\n"
-        "\n"
-        "OpenSSL: create self-signed certificate and key\n"
-        "\topenssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes\n"
-        "\n"
-        "Examples:\n"
-        "\tcms_sign -f any.file -p key.pem -c cert.pem\n"
-    ;
-}
-
-//-----------------------------------------------------------------------------
-static int parse_arguments(
-    struct context * context,
-    int argc,
-    char * argv[]
-)
-{
-    static struct option const options[] =
-    {
-        {"file", required_argument, NULL, 'f'},
-        {"private-key", required_argument, NULL, 'p'},
-        {"certificate", required_argument, NULL, 'c'},
-        {"verbose", no_argument, NULL, 'v'},
-        {"help", no_argument, NULL, 'h'},
-        {NULL, 0, NULL, 0}
-    };
-
-    int result = EXIT_SUCCESS;
-    context->command = SIGN;
-    context->filename = NULL;
-    context->key_file = NULL;
-    context->cert_file = NULL;
-    context->is_verbose = false;
-
-    bool is_finished = false;
-    while (!is_finished)
-    {
-        int option_index = 0;
-        int const c = getopt_long(argc, argv, "f:p:c:vh", options, &option_index);
-
-        switch (c)
-        {
-            case -1:
-                is_finished = true;
-                break;
-            case 'f':
-                context->filename = optarg;
-                break;
-            case 'p':
-                context->key_file = optarg;
-                break;
-            case 'c':
-                context->cert_file = optarg;
-                break;
-            case 'v':
-                context->is_verbose = true;
-                break;
-            case 'h':
-                context->command = PRINT_USAGE;
-                break;
-            default:
-                std::cout << "error: unknown argument\n";
-                context->command = PRINT_USAGE;
-                result = EXIT_FAILURE;
-                is_finished = true;
-                break;
-        }
-    }
-
-    if (SIGN == context->command)
-    {
-        if (NULL == context->filename)
-        {
-            std::cerr <<  "error: missing required argument: file name (-f)\n";
-            context->command = PRINT_USAGE;
-            result = EXIT_FAILURE;
-        }
-
-        if (NULL == context->key_file)
-        {
-            std::cerr << "error: missing required argument: private key (-p)\n";
-            context->command = PRINT_USAGE;
-            result = EXIT_FAILURE;
-        }
-
-        if (NULL == context->cert_file)
-        {
-            std::cerr << "error: missing required argument: certificate (-c)\n";
-            context->command = PRINT_USAGE;
-            result = EXIT_FAILURE;
-        }
-    }
-
-    return result;
-}
-
-//-----------------------------------------------------------------------------
-static int sign(
-    char const * filename,
-    char const * key_file,
-    char const * cert_file,
-    bool is_verbose)
-{
     int result = EXIT_FAILURE;
 
     try
@@ -281,7 +72,26 @@ static int sign(
     return result;
 }
 
+int main(int argc, char * argv[])
+{
+    OpenSSL::init();
 
+    App app("cms_sign", sign);
+    app
+        .setCopyright("Copyright (c) 2019 Falk Werner")
+        .setDescription("Prints signature of a file using OpenSSL Cryptographic Message Syntax (CMS).")
+        .setAdditionalInfo(
+            "OpenSSL: create self-signed certificate and key\n"
+            "\topenssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes\n"
+            "\n"
+            "Examples:\n"
+            "\tcms_sign -f any.file -p key.pem -c cert.pem\n"
+        )
+        .add(Argument('f', "file").setHelpText("File to sign."))
+        .add(Argument('p', "private-key").setHelpText("Private key to sign (format: PEM)."))
+        .add(Argument('c', "certificate").setHelpText("Certifiacte to sign (format: PEM)."))
+        .add(Argument('v', "verbose").setHelpText("Print additional information to stderr.").setFlag().setOptional())
+    ;
 
-
-
+    return app.run(argc, argv);
+}
