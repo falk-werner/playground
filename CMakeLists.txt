@@ -17,11 +17,10 @@ add_library(openssl++ STATIC
     lib/openssl++/private_key.cc
     lib/openssl++/certificate.cc
     lib/openssl++/cms.cc
-    lib/openssl++/base64.cc
 )
 target_include_directories(openssl++ PRIVATE lib include)
 target_compile_options(openssl++ PUBLIC ${OPENSSL_CFLAGS_OTHER})
-target_link_libraries(openssl++ PUBLIC ${OPENSSL_LIBRARIES})
+target_link_libraries(openssl++ PUBLIC ${OPENSSL_LIBRARIES} base64)
 
 add_library(cli STATIC
     lib/cli/app.cc
@@ -30,6 +29,11 @@ add_library(cli STATIC
     lib/cli/options.cc
 )
 target_include_directories(cli PRIVATE lib include)
+
+add_library(base64 STATIC
+    lib/base64/base64.c
+)
+target_include_directories(base64 PRIVATE lib include)
 
 add_executable(cms_sign
     src/cms_sign.cc)

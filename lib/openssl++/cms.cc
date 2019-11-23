@@ -1,7 +1,9 @@
 #include "openssl++/cms.hpp"
 #include "openssl++/exception.hpp"
 #include "openssl++/bio.hpp"
-#include "openssl++/base64.hpp"
+#include "base64/base64.h"
+
+#include <iostream>
 
 namespace openssl
 {
@@ -60,7 +62,12 @@ std::string CMS::toBase64() const
     char const * data;
     long count = BIO_get_mem_data(signature, &data);
 
-    return Base64::encode(std::string(data, count));
+    size_t encoded_size = base64_encoded_size((size_t) count);
+    std::string encoded(encoded_size, '\0');
+    base64_encode((uint8_t const *) data, (size_t) count, 
+        const_cast<char*>(encoded.data()), encoded.size());
+
+    return encoded;
 }
 
 void CMS::dump() const
