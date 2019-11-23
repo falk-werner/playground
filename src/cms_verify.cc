@@ -20,67 +20,54 @@
  * SOFTWARE.
  */
 
-//#############################################################################
-// Header
-//#############################################################################
+#include <iostream>
+#include <cstdlib>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "openssl++/openssl++.hpp"
+#include "cli/cli.hpp"
 
-//#############################################################################
-// Type Definitions
-//#############################################################################
+using openssl::OpenSSL;
 
-enum command
+using cli::App;
+using cli::Argument;
+using cli::Arguments;
+
+namespace
 {
-    VERIFY,
-    PRINT_USAGE
-};
-
-struct context
-{
-    char const * filename;
-    char const * signature_path;
-    enum command command;
-};
-
-//#############################################################################
-// Local Function Declarations
-//#############################################################################
-
-static void init_openssl(void);
-
-static void print_openssl_error(
-    char const * message);
-
-static void print_usage(void);
-
-static int parse_arguments(
-    struct context * context,
-    int argc,
-    char * argv[]);
-
-//#############################################################################
-// Implementation
-//#############################################################################
+    int verify(Arguments const & args)
+    {
+        std::cerr << "error: not implemented yet" << std::endl;
+        return EXIT_FAILURE;
+    }
+}
 
 int main(int argc, char* argv[])
 {
-    return EXIT_SUCCESS;
+    OpenSSL::init();
+
+    App app("cms_verify", verify);
+    app
+        .setCopyright("Copyright (c) 2019 Falk Werner")
+        .setDescription("Verifies file signatures produced with cms_sign")
+        .setAdditionalInfo(
+            "OpenSSL: create self-signed certificate and key\n"
+            "\topenssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes\n"
+            "\n"
+            "Create signature:\n"
+            "\tcms_sign -f any.file -p key.pem -c cert.pem > any.sig\n"
+            "\n"
+            "Examples:\n"
+            "\tcms_verify -f any.file -s any.sig -c cert.pem\n"
+        )
+        .add(Argument('f', "file").setHelpText("File that was signed."))
+        .add(Argument('s', "signature").setHelpText("File containing signature."))
+        .add(Argument('c', "certificate").setHelpText("Certifiacte to sign (format: PEM)."))
+        .add(Argument('v', "verbose").setHelpText("Print additional information to stderr.").setFlag().setOptional())
+    ;
+
+    return app.run(argc, argv);
 }
 
 
-static void print_usage(void)
-{
-
-}
-
-static int parse_arguments(
-    struct context * context,
-    int argc,
-    char * argv[])
-{
-    
-}
 
 

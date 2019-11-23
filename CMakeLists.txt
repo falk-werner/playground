@@ -43,4 +43,4 @@ target_link_libraries(cms_sign openssl++ cli)
 add_executable(cms_verify
     src/cms_verify.cc)
 target_include_directories(cms_verify PRIVATE src include)
-target_link_libraries(cms_verify openssl++)
+target_link_libraries(cms_verify openssl++ cli)

@@ -23,8 +23,6 @@
 #include <iostream>
 #include <cstdlib>
 
-#include <getopt.h>
-
 #include "openssl++/openssl++.hpp"
 #include "cli/cli.hpp"
 
