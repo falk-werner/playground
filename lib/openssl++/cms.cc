@@ -7,6 +7,18 @@
 namespace openssl
 {
 
+CMS CMS::fromFile(std::string const & filename)
+{
+    BasicIO file = BasicIO::openInputFile(filename);
+    CMS_ContentInfo * cms = d2i_CMS_bio(file,NULL);
+    if (NULL == cms)
+    {
+        throw new OpenSSLException("failed to read file");
+    }
+
+    return std::move(CMS(cms));
+}
+
 CMS CMS::sign(X509 * cert, EVP_PKEY * key, STACK_OF(X509) * certs, BIO * data, unsigned int flags)
 {
     CMS_ContentInfo * cms = CMS_sign(cert, key, certs, data, flags);

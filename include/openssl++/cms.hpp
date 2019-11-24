@@ -12,6 +12,7 @@ class CMS
     CMS & operator=(CMS const &) = delete;
     CMS(CMS const &) = delete;
 public:
+    static CMS fromFile(std::string const & filename);
     static CMS sign(X509 * cert, EVP_PKEY * key, STACK_OF(X509) * certs, BIO * data, unsigned int flags);
     explicit CMS(CMS_ContentInfo * cms_);
     CMS(CMS && other);

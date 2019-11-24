@@ -35,6 +35,11 @@ add_executable(cms_sign
 target_include_directories(cms_sign PRIVATE src include)
 target_link_libraries(cms_sign openssl++ cli)
 
+add_executable(cms_info
+    src/cms_info.cc)
+target_include_directories(cms_info PRIVATE src include)
+target_link_libraries(cms_info openssl++ cli)
+
 add_executable(cms_verify
     src/cms_verify.cc)
 target_include_directories(cms_verify PRIVATE src include)
