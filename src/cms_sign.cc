@@ -48,7 +48,7 @@ static int sign(Arguments const & args)
     }
     catch(std::exception const& ex)
     {
-        std::cerr << ex.what() << std::endl;;
+        std::cerr << ex.what() << std::endl;
     }
     
     return result;

@@ -89,4 +89,18 @@ void CMS::dump() const
     BIO_free_all(out);
 }
 
+bool CMS::verify(STACK_OF(X509) * certs, X509_STORE * store, BIO * indata, BIO * outdata, unsigned int flags, bool is_verbose)
+{
+    int rc = CMS_verify(cms, certs, store, indata, outdata, flags);
+    bool result = (1 == rc);
+    if ((!result) && (is_verbose))
+    {
+        OpenSSLException ex("verification failed");
+        std::cerr << "error: " << ex.what() << std::endl;
+    }
+
+
+    return result;
+}
+
 }

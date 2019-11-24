@@ -10,6 +10,8 @@
 #include <openssl++/private_key.hpp>
 #include <openssl++/basic_io.hpp>
 #include <openssl++/certificate.hpp>
+#include <openssl++/certificate_store.hpp>
+#include <openssl++/certificate_stack.hpp>
 #include <openssl++/cms.hpp>
 
 #endif

@@ -20,6 +20,8 @@ add_library(openssl++ STATIC
     lib/openssl++/basic_io.cc
     lib/openssl++/private_key.cc
     lib/openssl++/certificate.cc
+    lib/openssl++/certificate_store.cc
+    lib/openssl++/certificate_stack.cc
     lib/openssl++/cms.cc
 )
 target_include_directories(openssl++ PRIVATE lib include)

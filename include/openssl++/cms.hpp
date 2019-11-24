@@ -26,6 +26,7 @@ public:
     void saveToFile(std::string const & filename) const;
     void saveToBIO(BIO * bio) const;
     void dump() const;
+    bool verify(STACK_OF(X509) * certs, X509_STORE * store, BIO * indata, BIO * outdata, unsigned int flags, bool is_verbose = false);
 private:
     CMS_ContentInfo * cms;
 };
