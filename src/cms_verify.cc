@@ -41,7 +41,7 @@ namespace
             CertificateStack certs;
             certs.push(cert);
 
-            bool is_valid = cms.verify(certs, store, file, nullptr, CMS_DETACHED | CMS_NOCERTS | CMS_BINARY, is_verbose);
+            bool is_valid = cms.verify(certs, store, file, nullptr, CMS_DETACHED | CMS_BINARY, is_verbose);
 
             if (is_valid)
             {
