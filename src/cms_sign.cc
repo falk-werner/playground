@@ -42,6 +42,7 @@ static int sign(Arguments const & args)
     auto const & key_file = args.get('p');
     auto const & cert_file = args.get('c');
     bool is_verbose = args.contains('v');
+    bool write_to_file = args.contains('o');
 
     int result = EXIT_FAILURE;
 
@@ -49,11 +50,12 @@ static int sign(Arguments const & args)
     {
         auto key = PrivateKey::fromPEM(key_file);
         auto cert = Certificate::fromPEM(cert_file);
-        auto file = BasicIO::fromInputFile(filename);
+        auto file = BasicIO::openInputFile(filename);
 
         auto cms = CMS::sign(cert, key, nullptr, file, CMS_DETACHED | CMS_NOCERTS | CMS_BINARY);
-        auto signature = cms.toBase64();
-        std::cout << signature << std::endl;
+
+        auto out = (write_to_file) ? BasicIO::openOutputFile(args.get('o')) : BasicIO::getStdout();
+        cms.saveToBIO(out);
 
         if (is_verbose)
         {
@@ -88,6 +90,7 @@ int main(int argc, char * argv[])
         .add(Argument('f', "file").setHelpText("File to sign."))
         .add(Argument('p', "private-key").setHelpText("Private key to sign (format: PEM)."))
         .add(Argument('c', "certificate").setHelpText("Certifiacte to sign (format: PEM)."))
+        .add(Argument('o', "out-file").setHelpText("File to store signature to (if omitted, write signature to stdout).").setOptional())
         .add(Argument('v', "verbose").setHelpText("Print additional information to stderr.").setFlag().setOptional())
     ;
 

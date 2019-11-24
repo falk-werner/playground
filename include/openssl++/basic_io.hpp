@@ -12,7 +12,9 @@ class BasicIO
     BasicIO operator=(BasicIO const &) = delete;
     BasicIO(BasicIO const &) = delete;
 public:
-    static BasicIO fromInputFile(std::string const & filename);
+    static BasicIO openInputFile(std::string const & filename);
+    static BasicIO openOutputFile(std::string const & filename);
+    static BasicIO getStdout(void);
     static BasicIO fromMemory();
     explicit BasicIO(BIO * bio_);
     BasicIO & operator=(BasicIO && other);

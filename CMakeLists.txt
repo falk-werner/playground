@@ -13,14 +13,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(openssl++ STATIC
     lib/openssl++/exception.cc
     lib/openssl++/init.cc
-    lib/openssl++/bio.cc
+    lib/openssl++/basic_io.cc
     lib/openssl++/private_key.cc
     lib/openssl++/certificate.cc
     lib/openssl++/cms.cc
 )
 target_include_directories(openssl++ PRIVATE lib include)
 target_compile_options(openssl++ PUBLIC ${OPENSSL_CFLAGS_OTHER})
-target_link_libraries(openssl++ PUBLIC ${OPENSSL_LIBRARIES} base64)
+target_link_libraries(openssl++ PUBLIC ${OPENSSL_LIBRARIES})
 
 add_library(cli STATIC
     lib/cli/app.cc
@@ -29,11 +29,6 @@ add_library(cli STATIC
     lib/cli/options.cc
 )
 target_include_directories(cli PRIVATE lib include)
-
-add_library(base64 STATIC
-    lib/base64/base64.c
-)
-target_include_directories(base64 PRIVATE lib include)
 
 add_executable(cms_sign
     src/cms_sign.cc)

@@ -26,7 +26,7 @@
 #include <openssl++/exception.hpp>
 #include <openssl++/init.hpp>
 #include <openssl++/private_key.hpp>
-#include <openssl++/bio.hpp>
+#include <openssl++/basic_io.hpp>
 #include <openssl++/certificate.hpp>
 #include <openssl++/cms.hpp>
 

@@ -1,5 +1,5 @@
 #include "openssl++/private_key.hpp"
-#include "openssl++/bio.hpp"
+#include "openssl++/basic_io.hpp"
 #include "openssl++/exception.hpp"
 
 #include <openssl/pem.h>
@@ -9,7 +9,7 @@ namespace openssl
 
 PrivateKey PrivateKey::fromPEM(std::string const & filename)
 {
-    BasicIO key_file = BasicIO::fromInputFile(filename);
+    BasicIO key_file = BasicIO::openInputFile(filename);
 
     EVP_PKEY * key = PEM_read_bio_PrivateKey(key_file, NULL, NULL, NULL);
     if (NULL == key)

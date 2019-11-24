@@ -1,10 +1,19 @@
-#include "openssl++/bio.hpp"
+#include "openssl++/basic_io.hpp"
 #include "openssl++/exception.hpp"
+
+#include <cstdio>
 
 namespace openssl
 {
 
-BasicIO BasicIO::fromInputFile(std::string const & filename)
+BasicIO BasicIO::getStdout(void)
+{
+    BIO * out = BIO_new_fp(stdout, BIO_NOCLOSE);
+
+    return std::move(BasicIO(out));
+}
+
+BasicIO BasicIO::openInputFile(std::string const & filename)
 {
     BIO * file = BIO_new_file(filename.c_str(), "rb");
     if (NULL == file)
@@ -14,6 +23,18 @@ BasicIO BasicIO::fromInputFile(std::string const & filename)
 
     return std::move(BasicIO(file));
 }
+
+BasicIO BasicIO::openOutputFile(std::string const & filename)
+{
+    BIO * file = BIO_new_file(filename.c_str(), "wb");
+    if (NULL == file)
+    {
+        throw FileNotFoundException(filename);
+    }
+
+    return std::move(BasicIO(file));
+}
+
 
 BasicIO BasicIO::fromMemory()
 {

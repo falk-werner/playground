@@ -1,5 +1,5 @@
 #include "openssl++/certificate.hpp"
-#include "openssl++/bio.hpp"
+#include "openssl++/basic_io.hpp"
 #include "openssl++/exception.hpp"
 
 #include <openssl/pem.h>
@@ -9,7 +9,7 @@ namespace openssl
 
 Certificate Certificate::fromPEM(std::string const & filename)
 {
-    auto cert_file = BasicIO::fromInputFile(filename);
+    auto cert_file = BasicIO::openInputFile(filename);
 
     X509 * cert = PEM_read_bio_X509(cert_file, NULL, NULL, NULL);
     if (NULL == cert)

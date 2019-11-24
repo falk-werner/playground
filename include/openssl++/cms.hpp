@@ -18,7 +18,8 @@ public:
     CMS & operator=(CMS && other);
     ~CMS();
     operator CMS_ContentInfo*();
-    std::string toBase64() const;
+    void saveToFile(std::string const & filename) const;
+    void saveToBIO(BIO * bio) const;
     void dump() const;
 private:
     CMS_ContentInfo * cms;

@@ -1,7 +1,6 @@
 #include "openssl++/cms.hpp"
 #include "openssl++/exception.hpp"
-#include "openssl++/bio.hpp"
-#include "base64/base64.h"
+#include "openssl++/basic_io.hpp"
 
 #include <iostream>
 
@@ -51,24 +50,20 @@ CMS::operator CMS_ContentInfo*()
     return cms;
 }
 
-std::string CMS::toBase64() const
+void CMS::saveToFile(std::string const & filename) const
 {
-    auto signature = BasicIO::fromMemory();
-    if (!i2d_CMS_bio(signature, cms))
-    {
-        throw OpenSSLException("unable to read signature");
-    }
-
-    char const * data;
-    long count = BIO_get_mem_data(signature, &data);
-
-    size_t encoded_size = base64_encoded_size((size_t) count);
-    std::string encoded(encoded_size, '\0');
-    base64_encode((uint8_t const *) data, (size_t) count, 
-        const_cast<char*>(encoded.data()), encoded.size());
-
-    return encoded;
+    auto file = BasicIO::openOutputFile(filename);
+    saveToBIO(file);
 }
+
+void CMS::saveToBIO(BIO * bio) const
+{
+    if (!i2d_CMS_bio(bio, cms))
+    {
+        throw OpenSSLException("failed to convert CMS to DER format");
+    }
+}
+
 
 void CMS::dump() const
 {
