@@ -1,10 +1,8 @@
-[![Build Status](https://travis-ci.org/falk-werner/openssl-examples.svg?branch=master)](https://travis-ci.org/falk-werner/openssl-examples)
-
 # openssl-examples
 
 This project is a collection of examples using [Open SSL library](https://www.openssl.org/).
 
-## Create self-signed certifcae and private key
+## Create self-signed certifcate and private key
 
 Some examples require a certifacte and private key. To generate them, the following
 command can be used:
