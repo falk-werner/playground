@@ -7,7 +7,7 @@ Contains non-productive examples.
 ## Examples
 
 *   **[embed-resources](embed-resources):** How to embed resources in C applications
-*   **[png-example](png-example]):** How to read and write PNG files using libpng
+*   **[png-example](png-example):** How to read and write PNG files using libpng
 *   **[popen-example](popen-example):** How to execute a command using popen
 *   **[openssl-examples](openssl-examples):** How to sign files using OpenSSL
 
