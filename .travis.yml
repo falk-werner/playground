@@ -11,6 +11,7 @@ env:
     matrix:
         - PROJECT=embed-resources
         - PROJECT=popen-example
+        - PROJECT=png-example
 
 script:
     - mkdir -p "$PROJECT/build"
