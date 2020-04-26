@@ -6,12 +6,14 @@ addons:
         packages:
             - build-essential
             - cmake
+            - libssl-dev
 
 env:
     matrix:
         - PROJECT=embed-resources
         - PROJECT=popen-example
         - PROJECT=png-example
+        - PROJECT=openssl-examples
 
 script:
     - mkdir -p "$PROJECT/build"
