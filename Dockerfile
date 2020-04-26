@@ -3,7 +3,7 @@ ARG CODENAME=bionic
 
 FROM ${REGISTRY_PREFIX}ubuntu:${CODENAME} as builder
 
-ARG DEBIAN_FRONTEND=nointeractive
+ARG DEBIAN_FRONTEND=noninteractive
 RUN set -x \
     && apt update \
     && apt upgrade -y \
