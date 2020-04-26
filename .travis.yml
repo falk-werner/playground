@@ -9,8 +9,8 @@ addons:
 
 env:
     matrix:
-        PROJECT=embed-resources
-        PROJECT=popen-example
+        - PROJECT=embed-resources
+        - PROJECT=popen-example
 
 script:
     - mkdir -p "$PROJECT/build"
