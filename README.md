@@ -21,3 +21,13 @@ Use CMake to build an example:
     make
 
 Note that some examples might need prerequisites to build, e.g. libssl-dev for openssl-examples.
+
+## Using Docker
+
+The provided Dockerfile can be user to create an image containing all examples:
+
+    docker build --rm --build-arg "USER_ID=`id -u`" --tag playground .
+
+You can run the image using the following command:
+
+    docker run --rm --user="`id -u`" -it playground
