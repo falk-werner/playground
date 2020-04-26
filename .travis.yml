@@ -1,0 +1,18 @@
+language: minimal
+
+addons:
+    apt:
+        update: true
+        packages:
+            - build-essential
+            - cmake
+
+env:
+    matrix:
+        PROJECT=embed-resources
+
+script:
+    mdir -p "$PROJET/build"
+    cd "$PROJET/build"
+    cmake -DCMAKE_BUILD_TYPE=Debug ..
+    make
