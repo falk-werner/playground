@@ -40,7 +40,7 @@ COPY . ${SOURCE_DIR}
 RUN set -x \
   && chown -R user:user ${SOURCE_DIR}
 
-ARG EXAMPLES="embed-resources popen-example png-example openssl-examples walk-directory mmap-file"
+ARG EXAMPLES="embed-resources popen-example png-example openssl-examples walk-directory mmap-file find-in-files"
 RUN set -x \
     && for example in ${EXAMPLES}; do \
         su - user -c "mkdir -p ${SOURCE_DIR}/$example/build && cd ${SOURCE_DIR}/$example/build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make" ; \

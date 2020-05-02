@@ -16,6 +16,7 @@ env:
         - PROJECT=openssl-examples
         - PROJECT=walk-directory
         - PROJECT=mmap-file
+        - PROJECT=find-in-files
 
 script:
     - mkdir -p "$PROJECT/build"

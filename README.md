@@ -12,6 +12,7 @@ Contains non-productive examples.
 *   **[openssl-examples](openssl-examples):** How to sign files using OpenSSL
 *   **[walk-directory](walk-directory):** Traverse a directory structure
 *   **[mmap-file](mmap-file):** Compute MD5 checksum using mmap
+*   **[find-in-files](find-in-files):** Prints file names containig a given text
 
 ## Build
 
