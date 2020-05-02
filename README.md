@@ -10,6 +10,8 @@ Contains non-productive examples.
 *   **[png-example](png-example):** How to read and write PNG files using libpng
 *   **[popen-example](popen-example):** How to execute a command using popen
 *   **[openssl-examples](openssl-examples):** How to sign files using OpenSSL
+*   **[walk-directory](walk-directory):** Traverse a directory structure
+*   **[mmap-file](mmap-file):** Compute MD5 checksum using mmap
 
 ## Build
 

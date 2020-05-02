@@ -15,6 +15,7 @@ env:
         - PROJECT=png-example
         - PROJECT=openssl-examples
         - PROJECT=walk-directory
+        - PROJECT=mmap-file
 
 script:
     - mkdir -p "$PROJECT/build"
