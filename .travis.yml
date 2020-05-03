@@ -7,6 +7,8 @@ addons:
             - build-essential
             - cmake
             - libssl-dev
+            - libglib2.0-dev
+            - libglib2.0-dev-bin
 
 env:
     matrix:
@@ -17,6 +19,7 @@ env:
         - PROJECT=walk-directory
         - PROJECT=mmap-file
         - PROJECT=find-in-files
+        - PROJECT=dbus-example
 
 script:
     - mkdir -p "$PROJECT/build"

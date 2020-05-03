@@ -16,7 +16,8 @@ RUN set -x \
         libpng-dev \
         libssl-dev \
         libglib2.0-dev \
-        libglib2.0-dev-bin
+        libglib2.0-dev-bin \
+        dbus
 
 ARG BUILD_DIR=/tmp/build
 ARG DUMB_INIT_VERSION=1.2.2
@@ -42,7 +43,8 @@ COPY . ${SOURCE_DIR}
 RUN set -x \
   && chown -R user:user ${SOURCE_DIR}
 
-ARG EXAMPLES="embed-resources popen-example png-example openssl-examples walk-directory mmap-file find-in-files"
+ARG EXAMPLES="embed-resources \
+popen-example png-example openssl-examples walk-directory mmap-file find-in-files dbus-example"
 RUN set -x \
     && for example in ${EXAMPLES}; do \
         rm -rf "${SOURCE_DIR}/$example/build" ; \

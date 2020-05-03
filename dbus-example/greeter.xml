@@ -1,0 +1,10 @@
+<!DOCTYPE node PUBLIC "-//freedesktop/DTD D-BUS Object Introspection 1.0//EN" "http://www.freeedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/org/example/greeter">
+    <interface name="org.example.Greeter">
+        <method name="SayHello">
+            <arg name="whom"     type="s" direction="in"  />
+            <arg name="greeting" type="s" direction="out" />
+        </method>
+        <annotation name="org.gtk.GDBus.C.Name" value="greeter" />
+    </interface>
+</node>
