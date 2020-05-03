@@ -30,7 +30,7 @@ target_link_libraries(greet PUBLIC ${GLIB_LIBRARIES} ${GIO_LIBRARIES})
 
 add_custom_command(OUTPUT  ${CMAKE_BINARY_DIR}/gen/greeter.h  ${CMAKE_BINARY_DIR}/gen/greeter.c
     COMMAND mkdir -p  ${CMAKE_BINARY_DIR}/gen
-    COMMAND gdbus-codegen --generate-c-code greeter --output-directory ${CMAKE_BINARY_DIR}/gen ${CMAKE_SOURCE_DIR}/greeter.xml
+    COMMAND cd ${CMAKE_BINARY_DIR}/gen && gdbus-codegen --generate-c-code greeter ${CMAKE_SOURCE_DIR}/greeter.xml
     DEPENDS ${CMAKE_SOURCE_DIR}/greeter.xml
 )
 
