@@ -14,7 +14,9 @@ RUN set -x \
         curl \
         ca-certificates \
         libpng-dev \
-        libssl-dev
+        libssl-dev \
+        libglib2.0-dev \
+        libglib2.0-dev-bin
 
 ARG BUILD_DIR=/tmp/build
 ARG DUMB_INIT_VERSION=1.2.2
@@ -43,6 +45,7 @@ RUN set -x \
 ARG EXAMPLES="embed-resources popen-example png-example openssl-examples walk-directory mmap-file find-in-files"
 RUN set -x \
     && for example in ${EXAMPLES}; do \
+        rm -rf "${SOURCE_DIR}/$example/build" ; \
         su - user -c "mkdir -p ${SOURCE_DIR}/$example/build && cd ${SOURCE_DIR}/$example/build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make" ; \
     done
 
