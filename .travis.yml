@@ -8,7 +8,6 @@ addons:
             - cmake
             - libssl-dev
             - libglib2.0-dev
-            - libglib2.0-dev-bin
 
 env:
     matrix:
