@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>WebCAM Example</title>
+    <script type='text/javascript'>
+
+    function start() {
+        navigator.mediaDevices.getUserMedia({video: true})
+        .then((stream) => {
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+        })
+        .catch((error) => { console.log(error); });        
+    }
+
+    function startup() {
+        const button = document.getElementById('button');
+        button.addEventListener('click', start);
+    }
+
+    </script>
+</head>
+<body onload='startup();'>
+    <div>
+        <input type='button' id='button' value='start' />
+    </div>
+    <video id='video' autoplay='true' width='1280' height='720'></video>
+</body>
+</html>
