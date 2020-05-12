@@ -30,7 +30,6 @@ int main(int argc, char * argv[])
     {
         char const * video_device = argv[1];
 
-//        int fd = open(video_device, O_RDWR);
         int fd = open(video_device, O_RDONLY);
         if (0 >= fd)
         {
