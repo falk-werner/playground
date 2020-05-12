@@ -5,13 +5,24 @@
     <title>WebCAM Example</title>
     <script type='text/javascript'>
 
+    let g_stream = null;
+
     function start() {
-        navigator.mediaDevices.getUserMedia({video: true})
-        .then((stream) => {
-            const video = document.getElementById('video');
-            video.srcObject = stream;
-        })
-        .catch((error) => { console.log(error); });        
+        if (!g_stream) {
+            navigator.mediaDevices.getUserMedia({video: true})
+            .then((stream) => {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                g_stream = stream;
+            })
+            .catch((error) => { console.log(error); });        
+        }
+        else {
+            g_stream.getTracks().forEach((track) => {
+                track.stop();
+            });
+            g_stream = null;
+        }
     }
 
     function startup() {

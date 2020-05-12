@@ -7,15 +7,19 @@ pkg_check_modules(LIBPNG REQUIRED libpng)
 set(CMAKE_C_STANDARD 99)
 set(C_WARNINGS -Wall -Wextra)
 
-add_executable(test
-    src/main.c
+add_executable(video-info
+    src/video_info.c)
+
+add_executable(put-image
+    src/put_image.c
     src/png_image.c
 )
 
-target_compile_options(test PUBLIC
+target_compile_options(put-image PUBLIC
     ${LIBPNG_CFLAGS_OTHER}
 )
 
-target_link_libraries(test PUBLIC
+target_link_libraries(put-image PUBLIC
     ${LIBPNG_LIBRARIES}
 )
+
