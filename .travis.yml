@@ -8,6 +8,7 @@ addons:
             - cmake
             - libssl-dev
             - libglib2.0-dev
+            - ncurses-dev
 
 env:
     matrix:
@@ -19,6 +20,7 @@ env:
         - PROJECT=mmap-file
         - PROJECT=find-in-files
         - PROJECT=dbus-example
+        - PROJECT=virtual-webcam
 
 script:
     - mkdir -p "$PROJECT/build"

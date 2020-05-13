@@ -13,7 +13,8 @@ Contains non-productive examples.
 *   **[walk-directory](walk-directory):** Traverse a directory structure
 *   **[mmap-file](mmap-file):** Compute MD5 checksum using mmap
 *   **[find-in-files](find-in-files):** Prints file names containig a given text
-*   **[dbus-example](dbus-example):** Inprocess communication using D-BUS (via glib)
+*   **[dbus-example](dbus-example):** Inter-Process communication using D-BUS (via glib)
+*   **[virtual-webcam](virtual-webcam):** Virtual WebCAM using v4l2loopback device
 
 ## Build
 
