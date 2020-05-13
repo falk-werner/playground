@@ -35,3 +35,14 @@ add_executable(put-image
 target_link_libraries(put-image PUBLIC
     util
 )
+
+add_executable(vmenu
+    src/vmenu/item_list.c
+    src/vmenu/main.c
+)
+
+target_link_libraries(vmenu PUBLIC
+    util
+    menu
+    ncurses
+)

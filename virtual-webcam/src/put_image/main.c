@@ -22,7 +22,7 @@ print_usage(void)
         "Writes an image to video device\n"
         "\n"
         "Usage:\n"
-        "\tput-image [-d <video-device] -f <image.png>\n"
+        "\tput-image [-d <video-device>] -f <image.png>\n"
         "\n"
         "Options:\n"
         "\t-d, --device  - path of video device (default: /dev/video0)\n"
