@@ -1,4 +1,4 @@
-#include "put_image.h"
+#include "video_stream.h"
 
 #include <getopt.h>
 
@@ -109,11 +109,22 @@ main(
     struct context context;
     if (parse_args(&context, argc, argv))
     {
-        char * error_message;
-        if (!put_image(context.device, context.filename, &error_message))
+        struct video_stream * stream = video_stream_create(context.device);
+        if (NULL != stream)
         {
-            fprintf(stderr, "error: %s\n", error_message);
-            free(error_message);
+            char * error_message;
+            if (!video_stream_put_image(stream, context.filename, &error_message))
+            {
+                fprintf(stderr, "error: %s\n", error_message);
+                free(error_message);
+                context.exit_code = EXIT_FAILURE;
+            }
+
+            video_stream_close(stream);
+        }
+        else
+        {
+            fprintf(stderr, "error: failed to open video device: %s\n", context.device);
             context.exit_code = EXIT_FAILURE;
         }
     }

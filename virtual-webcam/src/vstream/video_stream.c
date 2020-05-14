@@ -1,6 +1,6 @@
 #define _GNU_SOURCE
 
-#include "put_image.h"
+#include "video_stream.h"
 #include "image.h"
 #include "yuv.h"
 
@@ -19,6 +19,16 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+struct video_stream
+{
+    bool is_initialized;
+    size_t width;
+    size_t height;
+    size_t frame_size;
+    uint8_t * frame_buffer;
+    int fd;
+};
+
 static void
 report_error(
     char * * error_message,
@@ -34,44 +44,54 @@ report_error(
     }
 }
 
-extern bool
-put_image(
-    char const * video_device,
+struct video_stream *
+video_stream_create(
+    char const * video_device)
+{
+    struct video_stream * stream = malloc(sizeof(struct video_stream));
+    stream->is_initialized = false;
+    stream->fd = open(video_device, O_RDWR);
+    stream->frame_buffer = NULL;
+    if (0 >= stream->fd)
+    {
+        free(stream);
+        stream = NULL;
+    }
+
+    return stream;
+}
+
+void
+video_stream_close(
+    struct video_stream * stream)
+{
+    close(stream->fd);
+    free(stream->frame_buffer);
+    free(stream);
+}
+
+
+bool
+video_stream_put_image(
+    struct video_stream * stream,
     char const * image_filename,
     char * * error_message)
 {
     bool result = true;
 
-    size_t width = 0;
-    size_t height = 0;
     struct image * image = image_load_from_file(image_filename);
-    if (NULL != image)
-    {
-        size_t width = image_get_width(image);
-        size_t height = image_get_height(image);
-    }
-    else
+    if (NULL == image)
     {
         report_error(error_message, "failed to load image %s", image_filename);
         result = false;
     }
 
-    int fd = 0;
-    if (result)
+    if ((result) && (!stream->is_initialized))
     {
-        fd = open(video_device, O_RDWR);
-        if (0 >= fd)
-        {
-            report_error(error_message, "failed to open video device: %s", video_device);
-            result = false;
-        }
-    }
-
-    size_t frame_size = 0;
-    struct v4l2_format video_format;
-    if (result)
-    {
-        frame_size = 3 * width * height / 2;
+        struct v4l2_format video_format;
+        size_t width = image_get_width(image);
+        size_t height = image_get_height(image);
+        size_t frame_size = 3 * width * height / 2;
 
         memset(&video_format, 0, sizeof(struct v4l2_format));
         video_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
@@ -84,8 +104,17 @@ put_image(
         video_format.fmt.pix.field = V4L2_FIELD_NONE;
         video_format.fmt.pix.priv = V4L2_PIX_FMT_PRIV_MAGIC;
 
-        int rc = ioctl(fd, VIDIOC_S_FMT, &video_format);
-        if (-1 == rc)
+        int rc = ioctl(stream->fd, VIDIOC_S_FMT, &video_format);
+        if (-1 != rc)
+        {
+            stream->frame_size = video_format.fmt.pix.sizeimage;
+            stream->width = video_format.fmt.pix.width;
+            stream->height = video_format.fmt.pix.height;
+            stream->frame_buffer = malloc(stream->frame_size);
+
+            stream->is_initialized = true;
+        }
+        else
         {
             report_error(error_message, "failed to write video format");
             result = false;
@@ -93,48 +122,40 @@ put_image(
     }
 
 
-    uint8_t * frame_buffer = NULL;
     if (result)
     {
-        frame_size = video_format.fmt.pix.sizeimage;
-        width = video_format.fmt.pix.width;
-        height = video_format.fmt.pix.height;
-        size_t offset_u = width * height;
+        size_t offset_u = stream->width * stream->height;
         size_t offset_v = offset_u + (offset_u / 4);
 
-        frame_buffer = malloc(frame_size);
-        memset(frame_buffer, 0, frame_size);
-        for(size_t y = 0; y < height; y++)
+        for(size_t y = 0; y < stream->height; y++)
         {
-            for (size_t x = 0; x < width; x++)
+            for (size_t x = 0; x < stream->width; x++)
             {
-                size_t i = (y * width) + x;
+                size_t i = (y * stream->width) + x;
 
                 struct pixel pixel = { 0, 0, 0};
                 image_get_pixel(image, x, y, &pixel);
                 struct yuv yuv;
                 rgb_to_yuv(&pixel, &yuv);
 
-                frame_buffer[i] = yuv.y;
+                stream->frame_buffer[i] = yuv.y;
                 if ((0 == (x % 2)) && (0 == (y % 2)))
                 {
-                    size_t uv_i = ((y / 2) * (width / 2)) + (x/2);
-                    frame_buffer[uv_i + offset_u] = yuv.u;
-                    frame_buffer[uv_i + offset_v] = yuv.v;
+                    size_t uv_i = ((y / 2) * (stream->width / 2)) + (x/2);
+                    stream->frame_buffer[uv_i + offset_u] = yuv.u;
+                    stream->frame_buffer[uv_i + offset_v] = yuv.v;
                 }
             }
         }
 
-        ssize_t bytes_written = write(fd, frame_buffer, frame_size);
-        if (bytes_written != frame_size)
+        ssize_t bytes_written = write(stream->fd, stream->frame_buffer, stream->frame_size);
+        if (bytes_written != stream->frame_size)
         {
             report_error(error_message, "failed to write frame");
             result = false;
         }
     }
 
-    if (NULL != frame_buffer) { free(frame_buffer); }
-    if (0 < fd) { close(fd); }
     if (NULL != image) { image_release(image); }
 
     return result;

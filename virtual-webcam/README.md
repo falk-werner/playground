@@ -4,7 +4,7 @@
 
     sudo apt update
     sudo apt install v4l2loopback-utils
-    sudo modprobe v4l2loopback
+    sudo modprobe v4l2loopback exclusive_caps=1
 
 ## Capture screen using ffmpeg
 

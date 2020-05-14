@@ -7,22 +7,22 @@ pkg_check_modules(LIBPNG REQUIRED libpng)
 set(CMAKE_C_STANDARD 99)
 set(C_WARNINGS -Wall -Wextra)
 
-add_library(util STATIC
-    src/util/yuv.c
-    src/util/png_image.c
-    src/util/put_image.c
+add_library(vstream STATIC
+    src/vstream/yuv.c
+    src/vstream/png_image.c
+    src/vstream/video_stream.c
 )
 
-target_compile_options(util PUBLIC
+target_compile_options(vstream PUBLIC
     ${LIBPNG_CFLAGS_OTHER}
 )
 
-target_link_libraries(util PUBLIC
+target_link_libraries(vstream PUBLIC
     ${LIBPNG_LIBRARIES}
 )
 
-target_include_directories(util PUBLIC
-    src/util
+target_include_directories(vstream PUBLIC
+    src/vstream
 )
 
 add_executable(video-info
@@ -33,7 +33,7 @@ add_executable(put-image
 )
 
 target_link_libraries(put-image PUBLIC
-    util
+    vstream
 )
 
 add_executable(vmenu
@@ -42,7 +42,7 @@ add_executable(vmenu
 )
 
 target_link_libraries(vmenu PUBLIC
-    util
+    vstream
     menu
     ncurses
 )
