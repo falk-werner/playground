@@ -9,6 +9,7 @@ addons:
             - libssl-dev
             - libglib2.0-dev
             - ncurses-dev
+            - libarchive-dev
 
 env:
     matrix:
@@ -21,6 +22,7 @@ env:
         - PROJECT=find-in-files
         - PROJECT=dbus-example
         - PROJECT=virtual-webcam
+        - PROJECT=libarchive-example
 
 script:
     - mkdir -p "$PROJECT/build"

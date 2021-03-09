@@ -15,6 +15,7 @@ Contains non-productive examples.
 *   **[find-in-files](find-in-files):** Prints file names containig a given text
 *   **[dbus-example](dbus-example):** Inter-Process communication using D-BUS (via glib)
 *   **[virtual-webcam](virtual-webcam):** Virtual WebCAM using v4l2loopback device
+*   **[libarchive-example](libarchive-example):** How to use libarchive to extract files from compressed archives
 
 ## Build
 
