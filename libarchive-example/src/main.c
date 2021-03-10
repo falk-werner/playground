@@ -129,7 +129,11 @@ extract_to(
     {
         void const * buffer;
         size_t size;
-        la_int64_t offset;
+#if ARCHIVE_VERSION_NUMBER >= 3000000
+    	int64_t offset;
+#else
+    	off_t offset;
+#endif
         int rc = archive_read_data_block(archive, &buffer, &size, &offset);
         while (ARCHIVE_OK == rc)
         {
