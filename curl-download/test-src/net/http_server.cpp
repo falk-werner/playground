@@ -63,7 +63,6 @@ void http_server::run()
 
             if (0 != (fds[1].revents & POLLIN))
             {
-                std::cout << "server events" << std::endl;
                 int client_fd = server.accept();
                 if (client_fd >= 0)
                 {
@@ -81,13 +80,13 @@ void http_server::run()
 
 void http_server::process_client(net::socket & client)
 {
-    std::cout << "process client" << std::endl;
     char header[4096];
+
+    // ToDo read whole header
     ssize_t length = client.read(reinterpret_cast<void*>(header), 4095);
     if (length > 0)
     {
         header[length] = '\0';
-        std::cout << header << std::endl;
         auto response = handler(header);
         client.write(reinterpret_cast<void const*>(response.c_str()), response.size());
     }

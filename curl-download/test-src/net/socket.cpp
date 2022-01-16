@@ -41,7 +41,7 @@ void socket::bind(int port)
     sockaddr_in address;
     memset(reinterpret_cast<void*>(&address), 0, sizeof(sockaddr_in));
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     address.sin_port = htons(port);
 
     int rc = ::bind(fd, reinterpret_cast<sockaddr*>(&address), sizeof(sockaddr_in));
