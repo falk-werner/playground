@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct download
 {
@@ -65,6 +66,32 @@ download_release(
     }
 }
 
+static int
+download_perform_once(
+    struct download * handle, FILE * file)
+{
+    long file_position = ftell(file);
+
+    curl_easy_setopt(handle->curl, CURLOPT_URL, handle->url);
+    curl_easy_setopt(handle->curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(handle->curl, CURLOPT_WRITEFUNCTION, fwrite);
+    curl_easy_setopt(handle->curl, CURLOPT_WRITEDATA, file);
+    curl_easy_setopt(handle->curl, CURLOPT_XFERINFOFUNCTION, &download_progress);
+    curl_easy_setopt(handle->curl, CURLOPT_XFERINFODATA, handle);
+    curl_easy_setopt(handle->curl, CURLOPT_NOPROGRESS, 0L);
+    curl_easy_setopt(handle->curl, CURLOPT_RESUME_FROM_LARGE, file_position);
+
+    CURLcode code = curl_easy_perform(handle->curl);
+
+    long http_status = 500;
+    if (code == CURLE_OK)
+    {
+        curl_easy_getinfo(handle->curl, CURLINFO_RESPONSE_CODE, &http_status);
+    }
+
+    return (int) http_status;
+}
+
 int
 download_perform(
     struct download * handle)
@@ -75,25 +102,18 @@ download_perform(
         return 500;
     }
 
-    curl_easy_setopt(handle->curl, CURLOPT_URL, handle->url);
-    curl_easy_setopt(handle->curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(handle->curl, CURLOPT_WRITEFUNCTION, fwrite);
-    curl_easy_setopt(handle->curl, CURLOPT_WRITEDATA, file);
-    curl_easy_setopt(handle->curl, CURLOPT_XFERINFOFUNCTION, &download_progress);
-    curl_easy_setopt(handle->curl, CURLOPT_XFERINFODATA, handle);
-    curl_easy_setopt(handle->curl, CURLOPT_NOPROGRESS, 0L);
-
-    CURLcode code = curl_easy_perform(handle->curl);
-    fclose(file);
-
-    long http_status = 500;
-    if (code == CURLE_OK)
+    int http_status = 500;
+    bool finished = false;
+    int download_attempts = 5;
+    while ((!finished) && (download_attempts > 0))
     {
-        curl_easy_getinfo(handle->curl, CURLINFO_RESPONSE_CODE, &http_status);
+        download_attempts--;
+        http_status = download_perform_once(handle, file);
+        finished = ((200 <= http_status) && (http_status < 300));
     }
 
-
-    return (int) http_status;
+    fclose(file);
+    return http_status;
 }
 
 void

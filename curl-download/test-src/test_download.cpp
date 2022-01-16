@@ -3,6 +3,8 @@
 
 #include <gtest/gtest.h>
 
+#include <unistd.h>
+
 #include <sstream>
 #include <future>
 
@@ -20,6 +22,7 @@ TEST(download, good)
     download_release(handle);
 
     ASSERT_EQ(200, status);
+    unlink("download.txt");
 }
 
 TEST(download, bad)
@@ -39,6 +42,7 @@ TEST(download, bad)
     download_release(handle);
 
     ASSERT_NE(200, status);
+    unlink("download.txt");
 }
 
 TEST(download, cancel)
@@ -64,4 +68,42 @@ TEST(download, cancel)
     p.set_value(42);
 
     ASSERT_NE(200, status);
+    unlink("download.txt");
+}
+
+TEST(download, rety_download)
+{
+    net::http_server server([](std::string const & request){ 
+        static int count = 0;
+
+        if (count == 0)
+        {
+            count++;
+            return 
+            "HTTP/1.0 200 OK\r\n"
+            "Content-Length: 6\r\n"
+            "\r\n"
+            "foo";
+        }
+        else
+        {
+            return 
+            "HTTP/1.0 200 OK\r\n"
+            "Content-Length: 3\r\n"
+            "Content-Range: 3-5/6\r\n"
+            "\r\n"
+            "bar";
+        }
+    });
+
+    std::stringstream url;
+    url << "http://localhost:" << server.get_port();
+
+    download * handle = download_create(url.str().c_str(), "download.txt");
+    ASSERT_NE(nullptr, handle);
+    int status = download_perform(handle);
+    download_release(handle);
+
+    ASSERT_EQ(200, status);
+    unlink("download.txt");
 }
